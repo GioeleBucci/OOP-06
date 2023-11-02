@@ -1,6 +1,3 @@
-/**
- * 
- */
 package it.unibo.collections.social.impl;
 
 import it.unibo.collections.social.api.SocialNetworkUser;
@@ -27,70 +24,87 @@ import java.util.Set;
  */
 public final class SocialNetworkUserImpl<U extends User> extends UserImpl implements SocialNetworkUser<U> {
 
-    /*
-     *
-     * [FIELDS]
-     *
-     * Define any necessary field
-     *
-     * In order to save the people followed by a user organized in groups, adopt
-     * a generic-type Map:  think of what type of keys and values would best suit the requirements
-     */
+  /*
+   *
+   * [FIELDS]
+   *
+   * Define any necessary field
+   *
+   * In order to save the people followed by a user organized in groups, adopt
+   * a generic-type Map: think of what type of keys and values would best suit the
+   * requirements
+   */
 
-    /*
-     * [CONSTRUCTORS]
-     *
-     * 1) Complete the definition of the constructor below, for building a user
-     * participating in a social network, with 4 parameters, initializing:
-     *
-     * - firstName
-     * - lastName
-     * - username
-     * - age and every other necessary field
-     */
-    /**
-     * Builds a user participating in a social network.
-     *
-     * @param name
-     *            the user firstname
-     * @param surname
-     *            the user lastname
-     * @param userAge
-     *            user's age
-     * @param user
-     *            alias of the user, i.e. the way a user is identified on an
-     *            application
-     */
-    public SocialNetworkUserImpl(final String name, final String surname, final String user, final int userAge) {
-        super(null, null, null, 0);
+  private final Map<String, Set<U>> followedMap = new HashMap<>();
+
+  /*
+   * [CONSTRUCTORS]
+   *
+   * 1) Complete the definition of the constructor below, for building a user
+   * participating in a social network, with 4 parameters, initializing:
+   *
+   * - firstName
+   * - lastName
+   * - username
+   * - age and every other necessary field
+   */
+  /**
+   * Builds a user participating in a social network.
+   *
+   * @param name
+   *                the user firstname
+   * @param surname
+   *                the user lastname
+   * @param userAge
+   *                user's age
+   * @param user
+   *                alias of the user, i.e. the way a user is identified on an
+   *                application
+   */
+  public SocialNetworkUserImpl(String firstName, String lastName, String username, int age) {
+    super(firstName, lastName, username, age);
+  }
+
+  /*
+   * 2) Define a further constructor where the age defaults to -1
+   */
+  public SocialNetworkUserImpl(String firstName, String lastName, String username) {
+    this(firstName, lastName, username, -1);
+  }
+
+  /*
+   * [METHODS]
+   *
+   * Implements the methods below
+   */
+  @Override
+  public boolean addFollowedUser(final String circle, final U user) {
+    if (!followedMap.containsKey(circle)) {
+      followedMap.put(circle, new HashSet<>());
     }
+    return followedMap.get(circle).add(user);
+  }
 
-    /*
-     * 2) Define a further constructor where the age defaults to -1
-     */
-
-    /*
-     * [METHODS]
-     *
-     * Implements the methods below
-     */
-    @Override
-    public boolean addFollowedUser(final String circle, final U user) {
-        return false;
+  /**
+   *
+   * [NOTE] If no group with groupName exists yet, this implementation must
+   * return an empty Collection.
+   */
+  @Override
+  public Collection<U> getFollowedUsersInGroup(final String groupName) {
+    if (followedMap.containsKey(groupName)) {
+      return new HashSet<>(followedMap.get(groupName));
     }
+    return new HashSet<>(); // CORRECTION: should use Collections.emtpyList();
+  }
 
-    /**
-     *
-     * [NOTE] If no group with groupName exists yet, this implementation must
-     * return an empty Collection.
-     */
-    @Override
-    public Collection<U> getFollowedUsersInGroup(final String groupName) {
-        return null;
+  @Override
+  /* CORRECTION: Should Pre-populate a Set in order to prevent duplicates    */
+  public List<U> getFollowedUsers() {
+    List<U> out = new ArrayList<>();
+    for (Set<U> group : followedMap.values()) {
+      out.addAll(group);
     }
-
-    @Override
-    public List<U> getFollowedUsers() {
-        return null;
-    }
+    return out;
+  }
 }
